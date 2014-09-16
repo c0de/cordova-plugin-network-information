@@ -34,6 +34,7 @@ if (typeof navigator != 'undefined') {
 
 function NetworkConnection() {
     this.type = 'unknown';
+    this.carrierName = '';
 }
 
 /**
@@ -46,6 +47,16 @@ NetworkConnection.prototype.getInfo = function(successCallback, errorCallback) {
     exec(successCallback, errorCallback, "NetworkStatus", "getConnectionInfo", []);
 };
 
+/**
+ * Get carrier name
+ *
+ * @param {Function} successCallback The function to call when the Connection data is available
+ * @param {Function} errorCallback The function to call when there is an error getting the Connection data. (OPTIONAL)
+ */
+NetworkConnection.prototype.getCarrierName = function(successCallback, errorCallback) {
+    exec(successCallback, errorCallback, "NetworkStatus", "getCarrierName", []);
+};
+
 var me = new NetworkConnection();
 var timerId = null;
 var timeout = 500;
@@ -54,6 +65,18 @@ channel.createSticky('onCordovaConnectionReady');
 channel.waitForInitialization('onCordovaConnectionReady');
 
 channel.onCordovaReady.subscribe(function() {
+    me.getCarrierName(function(carrierName) {
+        me.carrierName = carrierName;
+
+        // should only fire this once
+        if (channel.onCordovaConnectionReady.state !== 2) {
+            channel.onCordovaConnectionReady.fire();
+        }
+    },function(e) {
+        me.available = false;
+        utils.alert("[ERROR] Error initializing Cordova: " + e);
+    });
+
     me.getInfo(function(info) {
         me.type = info;
         if (info === "none") {

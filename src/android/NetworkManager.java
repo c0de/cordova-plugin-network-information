@@ -35,6 +35,9 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.util.Log;
 
+import android.telephony.TelephonyManager;
+import android.telephony.PhoneStateListener;
+
 public class NetworkManager extends CordovaPlugin {
 
     public static int NOT_REACHABLE = 0;
@@ -79,6 +82,10 @@ public class NetworkManager extends CordovaPlugin {
     BroadcastReceiver receiver;
     private JSONObject lastInfo = null;
 
+    private TelephonyManager _telephonyManager;
+    private SignalStrengthStateListener _signalStrengthStateListener;
+    private int _signalStrength = 0;
+
     /**
      * Constructor.
      */
@@ -95,6 +102,10 @@ public class NetworkManager extends CordovaPlugin {
      */
     public void initialize(CordovaInterface cordova, CordovaWebView webView) {
         super.initialize(cordova, webView);
+
+        Context context = cordova.getActivity().getApplicationContext();
+        _telephonyManager = (TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE);
+
         this.sockMan = (ConnectivityManager) cordova.getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
         this.connectionCallbackContext = null;
 
@@ -138,6 +149,14 @@ public class NetworkManager extends CordovaPlugin {
             callbackContext.sendPluginResult(pluginResult);
             return true;
         }
+        else if (action.equals("getCarrierName")) {
+            getCarrierName(callbackContext);
+            return true;
+        }
+        else if (action.equals("getSignalStrength")) {
+            getSignalStrength(callbackContext);
+            return true;
+        }
         return false;
     }
 
@@ -158,6 +177,30 @@ public class NetworkManager extends CordovaPlugin {
     //--------------------------------------------------------------------------
     // LOCAL METHODS
     //--------------------------------------------------------------------------
+
+    /**
+     * Get carrier name
+     *
+     * @callbackContext cordova callback context
+     */
+    private void getCarrierName(CallbackContext callbackContext) {
+        String carrierName = _telephonyManager.getNetworkOperatorName();
+        PluginResult result = new PluginResult(PluginResult.Status.OK, carrierName);
+        callbackContext.sendPluginResult(result);
+    }
+
+    /**
+     * Get signal strength
+     *
+     * @callbackContext cordova callback context
+     */
+    private void getSignalStrength(CallbackContext callbackContext) {
+        _signalStrength = 0;
+        _signalStrengthStateListener = new SignalStrengthStateListener();
+        _telephonyManager.listen(_signalStrengthStateListener, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
+        PluginResult result = new PluginResult(PluginResult.Status.OK, _signalStrength);
+        callbackContext.sendPluginResult(result);
+    }
 
     /**
      * Updates the JavaScript side whenever the connection changes
@@ -268,6 +311,16 @@ public class NetworkManager extends CordovaPlugin {
             return TYPE_NONE;
         }
         return TYPE_UNKNOWN;
+    }
+
+    private class SignalStrengthStateListener extends PhoneStateListener
+    {
+        @Override
+        public void onSignalStrengthsChanged(android.telephony.SignalStrength signalStrength)
+        {
+            super.onSignalStrengthsChanged(signalStrength);
+            _signalStrength = signalStrength.getGsmSignalStrength();
+        }
     }
 }
 
