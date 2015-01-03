@@ -34,7 +34,7 @@ if (typeof navigator != 'undefined') {
 
 function NetworkConnection() {
     this.type = 'unknown';
-    this.carrierName = '';
+    this.networkName = '';
 }
 
 /**
@@ -48,13 +48,13 @@ NetworkConnection.prototype.getInfo = function(successCallback, errorCallback) {
 };
 
 /**
- * Get carrier name
+ * Get network name
  *
  * @param {Function} successCallback The function to call when the Connection data is available
  * @param {Function} errorCallback The function to call when there is an error getting the Connection data. (OPTIONAL)
  */
-NetworkConnection.prototype.getCarrierName = function(successCallback, errorCallback) {
-    exec(successCallback, errorCallback, "NetworkStatus", "getCarrierName", []);
+NetworkConnection.prototype.getNetworkName = function(successCallback, errorCallback) {
+    exec(successCallback, errorCallback, "NetworkStatus", "getNetworkName", []);
 };
 
 var me = new NetworkConnection();
@@ -65,8 +65,8 @@ channel.createSticky('onCordovaConnectionReady');
 channel.waitForInitialization('onCordovaConnectionReady');
 
 channel.onCordovaReady.subscribe(function() {
-    me.getCarrierName(function(carrierName) {
-        me.carrierName = carrierName;
+    me.getNetworkName(function(networkName) {
+        me.networkName = networkName;
 
         // should only fire this once
         if (channel.onCordovaConnectionReady.state !== 2) {

@@ -149,8 +149,8 @@ public class NetworkManager extends CordovaPlugin {
             callbackContext.sendPluginResult(pluginResult);
             return true;
         }
-        else if (action.equals("getCarrierName")) {
-            getCarrierName(callbackContext);
+        else if (action.equals("getNetworkName")) {
+            getNetworkName(callbackContext);
             return true;
         }
         else if (action.equals("getSignalStrength")) {
@@ -179,13 +179,13 @@ public class NetworkManager extends CordovaPlugin {
     //--------------------------------------------------------------------------
 
     /**
-     * Get carrier name
+     * Get network name
      *
      * @callbackContext cordova callback context
      */
-    private void getCarrierName(CallbackContext callbackContext) {
-        String carrierName = _telephonyManager.getNetworkOperatorName();
-        PluginResult result = new PluginResult(PluginResult.Status.OK, carrierName);
+    private void getNetworkName(CallbackContext callbackContext) {
+        String networkName = _telephonyManager.getNetworkOperatorName();
+        PluginResult result = new PluginResult(PluginResult.Status.OK, networkName);
         callbackContext.sendPluginResult(result);
     }
 

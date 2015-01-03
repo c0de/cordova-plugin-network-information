@@ -31,4 +31,6 @@
 @property (copy) NSString* connectionType;
 @property (strong) CDVReachability* internetReach;
 
+- (void*)getNetworkName:(CDVInvokedUrlCommand*)command;
+
 @end

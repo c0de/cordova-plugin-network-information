@@ -128,4 +128,11 @@
     return self;
 }
 
+- (void)getNetworkName:(CDVInvokedUrlCommand*)command
+{
+    NSString* networkName = @"";
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:networkName];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
 @end
